@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using sena.ceet.adso.WebApplicationWithIdentityMVC003.Models;
 
 namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Data
 {
@@ -10,5 +11,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Data
         {
             
         }
+
+        public DbSet<Usuario> Usuarios { get; set; }
     }
 }
