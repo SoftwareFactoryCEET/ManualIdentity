@@ -45,11 +45,12 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
                     UserName = rgViewModel.Email,
                     Email = rgViewModel.Email,
                     Nombres = rgViewModel.Nombres,
+                    Apellidos = rgViewModel.Apellidos,
                     Pais = rgViewModel.Pais,
                     Ciudad = rgViewModel.Ciudad,
                     Direccion = rgViewModel.Direccion,
                     FechaNacimiento = rgViewModel.FechaNacimiento,
-                    Estado = rgViewModel.Estado
+                    Estado = true //rgViewModel.Estado
                 };
 
                 // Create the user in the database
