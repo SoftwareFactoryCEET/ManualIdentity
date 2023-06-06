@@ -87,5 +87,41 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
                 ModelState.AddModelError(String.Empty, error.Description);
             }
         }
+
+        [HttpGet]
+        public IActionResult Acceso(string returnurl = null)
+        {
+            ViewData["ReturnUrl"] = returnurl;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Acceso(AccesoViewModel accViewModel, string returnurl = null)
+        {
+            ViewData["ReturnUrl"] = returnurl;
+            returnurl = returnurl ?? Url.Content("~/");
+            if (ModelState.IsValid)
+            {
+                var resultado = await _signInManager.PasswordSignInAsync(accViewModel.Email, accViewModel.Password, accViewModel.RememberMe, lockoutOnFailure: true);
+
+                if (resultado.Succeeded)
+                {
+                    //return RedirectToAction("Index", "Home");
+                    return LocalRedirect(returnurl);
+                }
+                if (resultado.IsLockedOut)
+                {
+                    return View("Bloqueado");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Acceso inválido");
+                    return View(accViewModel);
+                }
+            }
+            return View(accViewModel);
+        }
+
+
     }
 }
