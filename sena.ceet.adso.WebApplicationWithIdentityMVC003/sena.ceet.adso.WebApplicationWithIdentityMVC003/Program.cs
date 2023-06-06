@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using sena.ceet.adso.WebApplicationWithIdentityMVC003.Data;
+using sena.ceet.adso.WebApplicationWithIdentityMVC003.Servicios;
 using System.Configuration;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using sena.ceet.adso.WebApplicationWithIdentityMVC003.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +21,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 //Agregar el servicio Identity a la aplicación
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
-
+builder.Services.AddTransient(IEmailSender, EmailSender);
 
 builder.Services.AddControllersWithViews();
 

@@ -11,11 +11,14 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
 
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IEmailSender _emailSender;
 
-        public CuentasController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public CuentasController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IEmailSender emailSender)
         {
             this._signInManager = signInManager;
             this._userManager = userManager;
+            _emailSender = emailSender;
+
         }
         public IActionResult Index()
         {
@@ -96,6 +99,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Acceso(AccesoViewModel accViewModel, string returnurl = null)
         {
             ViewData["ReturnUrl"] = returnurl;
@@ -122,6 +126,47 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
             return View(accViewModel);
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SalirAplicacion()
+        {
+            await _signInManager.SignOutAsync();
+            return View(nameof(HomeController.Index), "Home");
+        }
+
+        [HttpGet]  
+        public IActionResult OlvidoPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OlvidoPassword(OlvidoPasswordViewModel opViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var usuario = await _userManager.FindByEmailAsync(opViewModel.Email);
+                if (usuario == null)
+                {
+                    return RedirectToAction("ConfirmacionOlvidoPassword");
+                }
+
+                var codigo = await _userManager.GeneratePasswordResetTokenAsync(usuario);
+                var urlRetorno = Url.Action("ResetPassword", "Cuentas", new { userId = usuario.Id, code = codigo }, protocol: HttpContext.Request.Scheme);
+
+                //await _emailSender.SendEmailAsync(opViewModel.Email, "Recuperar contraseña - Proyecto Identity",
+                //    "Por favor recupere su contraseña dando click aquí: <a href=\"" + urlRetorno + "\">enlace</a>");
+
+                await _emailSender.SendEmailAsync(opViewModel.Email, "Recuperar contraseña - Proyecto Identity",
+                    "Por favor recupere su contraseña dando click aquí: <a href=\"" + urlRetorno + "\">enlace</a>");
+
+                return RedirectToAction("ConfirmacionOlvidoPassword");
+            }
+
+            return View(opViewModel);
+        }
 
     }
 }
