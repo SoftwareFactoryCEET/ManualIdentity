@@ -21,6 +21,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 //Agregar el servicio Identity a la aplicación
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
+//Esta línea es para la url de retorno al acceder
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = new PathString("/Cuentas/Acceso");
+    options.AccessDeniedPath = new PathString("/Cuentas/Bloqueado");
+});
+
+
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 

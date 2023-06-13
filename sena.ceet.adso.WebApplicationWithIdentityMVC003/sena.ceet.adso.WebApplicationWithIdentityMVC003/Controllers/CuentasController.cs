@@ -133,7 +133,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
         public async Task<IActionResult> SalirAplicacion()
         {
             await _signInManager.SignOutAsync();
-            return View(nameof(HomeController.Index), "Home");
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpGet]  
