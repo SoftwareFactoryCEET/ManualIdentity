@@ -9,22 +9,27 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Servicios
     {
         
         private readonly ILogger _logger;
-        public AuthMessageSenderOptions Options { get; }
+        public AuthMessageSenderOptions Options { get; } //Se debe quitar?
+        private readonly IConfiguration _configuration;
+
 
         public EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
-                       ILogger<EmailSender> logger)
+                       ILogger<EmailSender> logger, IConfiguration configuration)
         {
             Options = optionsAccessor.Value;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string message)
         {
-            if (string.IsNullOrEmpty(Options.SendGridKey))
+            var sendGridKey = _configuration["SendGridKey"];
+
+            if (string.IsNullOrEmpty(sendGridKey))
             {
                 throw new Exception("Null SendGridKey");
             }
-            await Execute(Options.SendGridKey, subject, message, toEmail);
+            await Execute(sendGridKey, subject, message, toEmail);
         }
 
         public async Task Execute(string apiKey, string subject, string message, string toEmail)

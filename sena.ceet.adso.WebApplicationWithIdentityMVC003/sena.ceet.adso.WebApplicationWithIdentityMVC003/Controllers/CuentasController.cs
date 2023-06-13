@@ -12,12 +12,14 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IEmailSender _emailSender;
+        
 
         public CuentasController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IEmailSender emailSender)
         {
             this._signInManager = signInManager;
             this._userManager = userManager;
             _emailSender = emailSender;
+         
 
         }
         public IActionResult Index()
@@ -64,8 +66,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
                     // Send the confirmation email
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(usuario);
                     var urlRetorno = Url.Action("ConfirmarEmail", "Cuentas", new { userId = usuario.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(rgViewModel.Email, "Confirmar su cuenta - Proyecto Identity",
-                    //    "Por favor confirme su cuenta dando click aquí: <a href=\"" + urlRetorno + "\">enlace</a>");
+                    await _emailSender.SendEmailAsync(rgViewModel.Email, "Confirmar su cuenta - Proyecto Identity", "Por favor confirme su cuenta dando click aquí: <a href=\"" + urlRetorno + "\">enlace</a>");
 
                     // Sign the user in
                     await _signInManager.SignInAsync(usuario, isPersistent: false);
@@ -154,10 +155,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
                 }
 
                 var codigo = await _userManager.GeneratePasswordResetTokenAsync(usuario);
-                var urlRetorno = Url.Action("ResetPassword", "Cuentas", new { userId = usuario.Id, code = codigo }, protocol: HttpContext.Request.Scheme);
-
-                //await _emailSender.SendEmailAsync(opViewModel.Email, "Recuperar contraseña - Proyecto Identity",
-                //    "Por favor recupere su contraseña dando click aquí: <a href=\"" + urlRetorno + "\">enlace</a>");
+                var urlRetorno = Url.Action("ResetPassword", "Cuentas", new { userId = usuario.Id, code = codigo }, protocol: HttpContext.Request.Scheme);           
 
                 await _emailSender.SendEmailAsync(opViewModel.Email, "Recuperar contraseña - Proyecto Identity",
                     "Por favor recupere su contraseña dando click aquí: <a href=\"" + urlRetorno + "\">enlace</a>");

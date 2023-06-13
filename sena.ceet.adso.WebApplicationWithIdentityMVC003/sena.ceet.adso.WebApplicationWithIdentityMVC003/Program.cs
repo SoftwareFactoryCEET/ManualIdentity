@@ -21,7 +21,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 //Agregar el servicio Identity a la aplicación
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
-builder.Services.AddTransient(IEmailSender, EmailSender);
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
 
 builder.Services.AddControllersWithViews();
 
