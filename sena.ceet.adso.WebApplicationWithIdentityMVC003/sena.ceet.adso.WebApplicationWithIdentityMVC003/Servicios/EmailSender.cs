@@ -10,6 +10,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Servicios
         
         private readonly ILogger _logger;
         public AuthMessageSenderOptions Options { get; } //Se debe quitar?
+        
         private readonly IConfiguration _configuration;
 
 

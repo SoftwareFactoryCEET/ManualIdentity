@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using sena.ceet.adso.WebApplicationWithIdentityMVC003.Models;
@@ -164,6 +165,72 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
             }
 
             return View(opViewModel);
+        }
+
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ConfirmacionOlvidoPassword()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string code=null) { 
+            return code == null ? View() : View(code);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(RecuperaPasswordViewModel passwordViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var usuario = await _userManager.FindByEmailAsync(passwordViewModel.Email);
+
+                if (usuario == null)
+                {
+                    return RedirectToAction("ConfirmacionRecuperaPassword");
+                }
+                var resultado = await _userManager.ResetPasswordAsync(usuario, passwordViewModel.Code, passwordViewModel.Password);
+                if (resultado.Succeeded)
+                {
+                    return RedirectToAction("ConfirmacionRecuperaPassword");
+                }
+                ValidarErrores(resultado);
+            }
+            return View(passwordViewModel);            
+
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ConfirmacionRecuperaPassword()
+        {
+            return View(); 
+        }
+
+
+        //Método para confirmación de email en el registro
+        [HttpGet]
+        public async Task<IActionResult> ConfirmarEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return View("Error");
+            }
+
+            var usuario = await _userManager.FindByIdAsync(userId);
+            if (usuario == null)
+            {
+                return View("Error");
+            }
+
+            var resultado = await _userManager.ConfirmEmailAsync(usuario, code);
+            return View(resultado.Succeeded ? "ConfirmarEmail" : "Error");
         }
 
     }

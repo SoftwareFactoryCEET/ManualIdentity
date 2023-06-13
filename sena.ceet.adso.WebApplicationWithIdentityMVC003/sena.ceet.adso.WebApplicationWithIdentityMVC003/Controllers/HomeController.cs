@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using sena.ceet.adso.WebApplicationWithIdentityMVC003.Models;
 using System.Diagnostics;
 
@@ -18,6 +19,8 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
             return View();
         }
 
+
+        [Authorize]
         public IActionResult Privacy()
         {
             return View();
