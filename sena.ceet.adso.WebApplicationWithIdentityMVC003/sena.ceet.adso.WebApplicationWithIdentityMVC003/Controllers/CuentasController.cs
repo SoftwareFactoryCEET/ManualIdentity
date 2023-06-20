@@ -7,30 +7,51 @@ using sena.ceet.adso.WebApplicationWithIdentityMVC003.Models.ViewModels;
 
 namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
 {
+    //[AllowAnonymous] // Permite que todos los métodos del controlador queden públicos para usuarios no autenticados
+    [Authorize] // Proteger el controlador y los métodos unicamente para usuarios autenticados. 
     public class CuentasController : Controller
     {
 
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IEmailSender _emailSender;
-        
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public CuentasController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IEmailSender emailSender)
+
+        public CuentasController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IEmailSender emailSender, RoleManager<IdentityRole> roleManager)
         {
             this._signInManager = signInManager;
             this._userManager = userManager;
-            _emailSender = emailSender;
-         
-
+            this._emailSender = emailSender;
+            this._roleManager = roleManager;
         }
+
+        [HttpGet]
+        [AllowAnonymous]
         public IActionResult Index()
         {
             return View();
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Registro(string returnurl = null)
         {
+            //Para la creación de los roles
+            if (!await _roleManager.RoleExistsAsync("Administrador"))
+            {
+                //Creación de rol usuario Administrador
+                await _roleManager.CreateAsync(new IdentityRole("Administrador"));
+            }
+
+            //Para la creación de los roles
+            if (!await _roleManager.RoleExistsAsync("Registrado"))
+            {
+                //Creación de rol usuario Registrado
+                await _roleManager.CreateAsync(new IdentityRole("Registrado"));
+            }
+
+
             ViewData["ReturnUrl"] = returnurl;
             RegistroViewModel registroVM = new RegistroViewModel();
             return View(registroVM);
@@ -38,6 +59,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Registro(RegistroViewModel rgViewModel, string returnurl = null)
         {
             ViewData["ReturnUrl"] = returnurl;
@@ -64,6 +86,11 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
 
                 if (resultado.Succeeded)
                 {
+                    //Esta línea es para la asignación del usuario que se registra al rol "Registrado"
+                    await _userManager.AddToRoleAsync(usuario, "Registrado");
+
+
+
                     // Send the confirmation email
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(usuario);
                     var urlRetorno = Url.Action("ConfirmarEmail", "Cuentas", new { userId = usuario.Id, code = code }, protocol: HttpContext.Request.Scheme);
@@ -85,6 +112,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
         }
 
         //Manejador de errores
+        [AllowAnonymous]
         private void ValidarErrores(IdentityResult resultado)
         {
             foreach (var error in resultado.Errors)
@@ -94,6 +122,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Acceso(string returnurl = null)
         {
             ViewData["ReturnUrl"] = returnurl;
@@ -102,6 +131,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Acceso(AccesoViewModel accViewModel, string returnurl = null)
         {
             ViewData["ReturnUrl"] = returnurl;
@@ -137,7 +167,8 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
-        [HttpGet]  
+        [HttpGet]
+        [AllowAnonymous]
         public IActionResult OlvidoPassword()
         {
             return View();
@@ -145,6 +176,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> OlvidoPassword(OlvidoPasswordViewModel opViewModel)
         {
             if (ModelState.IsValid)
@@ -184,6 +216,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword(RecuperaPasswordViewModel passwordViewModel)
         {
             if (ModelState.IsValid)
@@ -216,6 +249,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
 
         //Método para confirmación de email en el registro
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> ConfirmarEmail(string userId, string code)
         {
             if (userId == null || code == null)
@@ -231,6 +265,16 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
 
             var resultado = await _userManager.ConfirmEmailAsync(usuario, code);
             return View(resultado.Succeeded ? "ConfirmarEmail" : "Error");
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Denegado(string returnurl = null)
+        {
+            ViewData["ReturnUrl"] = returnurl;
+            returnurl = returnurl ?? Url.Content("~/");
+            return View();
         }
 
     }

@@ -20,7 +20,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Controllers
         }
 
 
-        [Authorize]
+        [Authorize (Roles ="Administrador")]
         public IActionResult Privacy()
         {
             return View();

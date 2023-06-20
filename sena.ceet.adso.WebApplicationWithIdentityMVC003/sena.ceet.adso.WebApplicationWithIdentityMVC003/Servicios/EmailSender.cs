@@ -25,7 +25,7 @@ namespace sena.ceet.adso.WebApplicationWithIdentityMVC003.Servicios
         public async Task SendEmailAsync(string toEmail, string subject, string message)
         {
             var sendGridKey = _configuration["SendGridKey"];
-
+           
             if (string.IsNullOrEmpty(sendGridKey))
             {
                 throw new Exception("Null SendGridKey");
